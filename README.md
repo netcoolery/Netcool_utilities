@@ -1,4 +1,6 @@
 # Netcool_utilities
+OK - This is presumably the changed README.md on the pages side
+
 Open sourced scripts for the benefit of the IBM Netcool products
 
 "Netcool" is a copyrighted trademark of IBM Corporation
