@@ -1,0 +1,39 @@
+<p dir="ltr">There are a lot of environments for NOI where an LDAP-accessible Corporate directory (often Microsoft&#39;s Active Directory) is perfect for authenticating users.&nbsp; It&#39;s possible for DASH,&nbsp; the Impact GUI Server, and the Unity Server (the GUI behind Log Analysis) to share a single-sign-on domain and to do role-based access based on membership in LDAP-provided groups.</p>
+
+<p dir="ltr">What often doesn&#39;t work as well is hosting an administrative &quot;service&quot; user via LDAP.&nbsp;&nbsp; Among other issues, firms often have the Corporate Directory administered by a separate group that may be less than responsive (or careful.)&nbsp;&nbsp; I have experienced the issue with the &#39;impactadmin&#39; user being locked or having the password reset. at multiple customers, causing all sorts of grief.</p>
+
+<p dir="ltr">DASH is not susceptible to this issue as the underlying WebSphere VMM will happily federate file-based users and LDAP-based users.&nbsp; So the magic &quot;smadmin&quot; is set in a file and kept under firm control of the event management team.&nbsp;&nbsp; Unfortunately, Impact uses WebSphere &quot;Liberty&quot; which cannot federate a file-based user repository with an LDAP-based repository.&nbsp; In the past this has meant begging the Corporate Directory team to create &#39;impactadmin&#39; (it&#39;s possible to use a different name) and to make sure the account is set with a non-expiring password.</p>
+
+<p dir="ltr">The good news is that WebSphere Liberty is quite capable of federating multiple LDAP repositories, so I have been able to use a simple OpenLDAP server as the source for the &#39;impactadmin&#39; user -- as well as a source for the &#39;unityadmin&#39; user for Log Analysis if needed.</p>
+
+<p dir="ltr">The OpenLDAP daemon, slapd, must be installed and running.&nbsp; To install it (on Red Hat EL):</p>
+
+<p dir="ltr"><strong># yum install -y openldap-clients openldap-servers</strong></p>
+
+<p dir="ltr">For RHEL 7 and later (which use systemctl), slapd can be started and set up for automatic restart with:</p>
+
+<p dir="ltr"><strong># systemctl start slapd</strong></p>
+
+<p dir="ltr"><strong># systemctl enable slapd</strong></p>
+
+<p dir="ltr">For RHEL 6, use the older commands:</p>
+
+<p dir="ltr"><strong># service sladp start</strong></p>
+
+<p dir="ltr"><strong># chkconfig --add slapd</strong></p>
+
+<p dir="ltr"><strong># chkconfig --level 35 slapd on</strong></p>
+
+<p dir="ltr">Once you have sladpd running, use this script <a href="https://ibm.box.com/s/anri8e6qi9sjff8ozz7fdwlqfvhvhhkx" rel="noopener noreferrer noopener noreferrer" target="_blank">config_noi_ldap.sh</a>,&nbsp; to configure the server to add an &quot;admin&quot; user (to bind to), an &quot;impactadmin&quot; user, and optionally a &quot;unityadmin&quot; user.&nbsp; Use it something like this:</p>
+
+<p dir="ltr"><strong># ./config_noi_ldap.sh&nbsp; password1 password2 [ password3]</strong></p>
+
+<p dir="ltr">&quot;password1&quot; is the password for a user named &quot;admin&quot; that is intended to be the bind user (used by Liberty to connect to the LDAP server.)</p>
+
+<p dir="ltr">&quot;password2&quot; is the password for impactadmin, and &quot;password3&quot; (if present) will cause the unityadmin user to be created and set with that password.</p>
+
+<p dir="ltr">It&#39;s easy to edit the script if the preset &quot;admin&quot;, &quot;impactadmin&quot;, and/or &quot;unityadmin&quot; user names need to be changed.</p>
+
+<p dir="ltr">In the <a href="https://www.ibm.com/developerworks/community/blogs/netcoolery/entry/Using_OpenLDAP_to_Authenticate_the_impactadmin_user_Part_II?lang=en" rel="noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer" target="_blank">next&nbsp;post</a>, I will show how the OpenLDAP server can be federated with another LDAP respository for Impact&#39;s use.</p>
+
+<p dir="ltr">One thing more... here is another convenience script for changing the password of one of the users:&nbsp; <a href="https://ibm.box.com/s/s8ge0f173a0lit4ciqfhbfmxw96rk18a" rel="noopener noreferrer noopener noreferrer" target="_blank">change_noi_ldap_upasswd.sh</a>.</p>

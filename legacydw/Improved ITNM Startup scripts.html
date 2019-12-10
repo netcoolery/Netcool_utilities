@@ -1,0 +1,45 @@
+<div dir="ltr">I&#39;ve mentioned in a number of blog entries that I consider non-root installation and operation of ITNM to be &quot;Best Practice&quot;.&nbsp; One area where the &quot;Out of the box&quot; ITNM product doesn&#39;t support this are the system startup scripts. &nbsp; These are the scripts thar reside in /etc/init.d (the path varies slightly by *NIX variant).&nbsp;&nbsp; Of course it you are running the ITNM installer as a non-root user, the installer won&#39;t be able to put scripts in the protected system directory, but it will still create versions in $NCHOME/precision/custom/control/init.d.&nbsp;&nbsp; The three scripts it creates are:
+<p>&nbsp;</p>
+
+<ul>
+	<li>&nbsp;ncp - The startup script for all of the &quot;core&quot; precision processes</li>
+</ul>
+
+<ul>
+	<li>&nbsp;nco - The startup script for OMNIbus processes</li>
+</ul>
+
+<ul>
+	<li>&nbsp;tip - The startup script for the Tivoli Integrated Portal</li>
+</ul>
+
+<p>N.B. These scripts are built as part of the process of building and customizing the various ITNM control scripts (e.g itnm_start, itnm_status, and so forth.)&nbsp;&nbsp; There is a master script, $NCHOME/precision/install/scripts/create_all_control.sh that does this - it&#39;s easy to figure out the chain of subordinate scripts from there.</p>
+
+<p>&nbsp;</p>
+</div>
+
+<div dir="ltr">The problem with the stock startup scripts is that they provide no mechanism for starting their process as something other than root. &nbsp; I have added that feature to the scripts along with a few other improvements.<br />
+&nbsp;You can get them: <a href="https://www.ibm.com/developerworks/mydeveloperworks/blogs/netcoolery/resource/ITNMstartupscripts.zip">here</a>.&nbsp; (UPDATE 1/23/13 - Fixed export of NC_RULES_HOME in the &quot;nco&quot; script.)</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">These scripts can be run both by the root user (either at startup or later) or by the user reserved to be the owner of the ITNM processes (I use &quot;netcool&quot; unless my customer provisioned a different name.) &nbsp;</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">EDIT:&nbsp; One more thing to note - these startup scripts do require the ITNM control scripts to be present (which is not the default if the server only has OMNIbus stuff). &nbsp; <a href="https://www.ibm.com/developerworks/mydeveloperworks/blogs/netcoolery/entry/putting_the_itnm_control_scripts_on_each_server8?lang=en">Here&#39;s how to fix that</a>.</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">EDIT:&nbsp; And another thing to remember - Change the modes to r_xr_x_r_x after copying them to the appropriate startup directory, and don&#39;t forget to make the appropriate symlinks.<br />
+For example, installing the nco script on Linux would be done like:</div>
+
+<blockquote dir="ltr">
+<div># cp nco /etc/init.d<br />
+# chmod 755 /etc/init.d/nco<br />
+# /sbin/chkconfig --add nco</div>
+</blockquote>
+
+<div dir="ltr">&nbsp;Other operating systems have variations of the above.</div>
+
+<div dir="ltr">&nbsp;</div>

@@ -1,0 +1,58 @@
+<div dir="ltr">The recent re-release of ITNM 3.9 is a welcome thing.&nbsp; It&#39;s a huge timesaver for a new install, not having to deal with installing ITNM and them immediately applying Fix Pack 2. &nbsp; So <span style="font-weight: bold;">hooray </span>for that!<br />
+<br />
+Here&#39;s some other benefits:</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">ITNM 3.9 now supports IE 9 and Firefox ESR 10 (although in my experience, FF ESR 10 renders some portlets wrong the first time and you have to refresh the page).&nbsp;&nbsp; Another nice thing is that an explicit DB2 entitlement is included, so you can substitute DB2 for Informix (which is looking more and more like a good idea.)<br />
+<br />
+Lastly, there are a lot of updates to bundled software
+<ul>
+	<li>The package contains an updated OMNIbus Web GUI</li>
+	<li>The package upgrades Informix&nbsp; (but consider DB2 or MySQL)</li>
+	<li>The package contains a newer TIP</li>
+	<li>The package contains a newer TCR</li>
+</ul>
+</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">So what&#39;s to complain about?&nbsp; These two things:
+<ul>
+	<li>The package includes a older version of the SNMP trap probe</li>
+	<li>The package includes an older version of the Netcool Include Library</li>
+</ul>
+</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">Seems like an oversight to me.&nbsp;&nbsp; This means that after running the ITNM installer, a conscientious installer needs to upgrade both the SNMP probe and the NcKL stuff. &nbsp; The former should be done<br />
+via the usual nco_install_integration, while the latter is done via a straight overwrite of the rules tar.</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">Note that NcKL 3.6 did make a minor (but important) change to the&nbsp; Advanced Correlation automations.&nbsp;&nbsp; A &quot;when&quot; clause was added to each automation that makes sure that the automation only runs when the ObjectServer is the acting primary.&nbsp; Obviously this only matters when dealing with a pair of ObjectServers in a fail-over configuration, but it&#39;s good practice and will hopefully be standard soon.&nbsp; For the purposes of installing the newer NcKL, it&#39;s easy to either re-run the SQL file for the automations (ignoring errors for columns already built) or just update them by hand.</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">Here&#39;s the clause:</div>
+
+<div dir="ltr">
+<blockquote>WHEN<br />
+&nbsp;&nbsp;&nbsp;&nbsp; get_prop_value(&#39;ActingPrimary&#39;)%=&#39;TRUE&#39;</blockquote>
+</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">By the way, the part numbers (for Linux) that you would download are:</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">Netcool/OMNIbus Probe for SNMP (nco-p-mttrapd 13_0) for Linux English&nbsp;(CI5G7EN)<br />
+Netcool Knowledge Library (NcKL) Enhanced Probe Rules V3.6 Multiplatform English&nbsp;&nbsp;(CI9AZEN)&nbsp;</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr"><span style="font-style: italic;">Disclaimer:</span> The part numbers were current as of this writing (11/2/2012), it is always wise to check for updates</div>
+
+<div dir="ltr">&nbsp;</div>

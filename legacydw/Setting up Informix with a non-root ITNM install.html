@@ -1,0 +1,57 @@
+<p dir="ltr">&nbsp;</p>
+
+<div dir="ltr">I always try to install the various Netcool products as a dedicated user (usually &quot;netcool&quot;) vs installing as root.&nbsp; There are a lot of good reasons for this - worth a blog post sometime, but not at the moment,<br />
+&nbsp;<br />
+After installing the refreshed version of ITNM 3.9, I had to run a script (as root) to install Informix.&nbsp; This script is in $NCHOME/precision/install/scripts and it is named &quot;install_ids_root.ksh&quot;.&nbsp;&nbsp; Unfortunately, the documentation does not contain sufficient warnings about this script, so here&#39;s my hard-earned knowledge:<br />
+(Note: Updated 10/10/12 as I learned more)<br />
+&nbsp;<br />
+Assume for the moment that your NCHOME is /opt/netcool/ibm owned by &quot;netcool&quot; with group ownership of &quot;ncoadmin&quot;, and your precision domain is called TEST.<br />
+&nbsp;<br />
+1) Make sure (at least on AIX) that /usr/sbin is in your PATH since the script will attempt to create users (informix, ncim) with the &quot;useradd&quot; command.<br />
+If you create these users yourself, make sure that they have valid passwords that matched what you gave the installer for the database password<br />
+(if you&#39;ve forgotten that password, it&#39;s in ../data/ids.properties as explained in step 4)<br />
+2) Make sure the path to $NCHOME/platform is at least r-xr-xr-x<br />
+3) Make sure to have the precision domain set in your environment, e.g. export PRECISION_DOMAIN=TEST<br />
+4) Run the script with &quot;-f ../data/ids.properties&quot; - that file has various settings (like NCHOME) taken from the installer session.<br />
+&nbsp;<br />
+If things go wrong, you can&nbsp; use: &quot;$NCHOME/Uninstall_ITNM -i&quot; to wipe out Informix and try again.&nbsp; If you are prebuilding the informix and ncim users you&#39;ll have to do it again.<br />
+<br />
+By the way, there are several important environmental variables to set for Informix,&nbsp; Here&#39;s a snippet from<br />
+the .profile (or .bashrc) file for the &quot;netcool&quot; and &quot;informix&quot; users:<br />
+<br />
+<br />
+&nbsp; # If Informix Dynamic Server is installed, add commands to PATH<br />
+&nbsp; if [ -x $NCHOME/platform/$PLATFORM/informix ]; then<br />
+&nbsp;&nbsp;&nbsp; export INFORMIXDIR=$NCHOME/platform/$PLATFORM/informix<br />
+&nbsp;&nbsp;&nbsp; export INFORMIXSERVER=ITNM<br />
+&nbsp;&nbsp;&nbsp; export INFORMIXSQLHOSTS=$INFORMIXDIR/etc/sqlhosts.ITNM<br />
+&nbsp;&nbsp;&nbsp; inpath $INFORMIXDIR/bin || PATH=$PATH:$INFORMIXDIR/bin<br />
+&nbsp; fi<br />
+<br />
+&nbsp;<br />
+Once the Informix database is built, you should be able to connect to it with Informix&#39;s &quot;dbaccess&quot; command.&nbsp; For starters,<br />
+log in (or su) as the Informix user&nbsp; (make sure it has the environment variables set as shown above.) Informix uses system identification - if you are on the same host and have already authenticated<br />
+yourself as &quot;informix&quot; it will automatically authenticate you to the database.<br />
+<br />
+Try &quot;dbaccess itnm&quot; - If all goes well, you&#39;ll be in the client and able to access basic information such as the dbspaces that have been built. In my case, there was another glitch....<br />
+<br />
+<br />
+The&nbsp; host (we&#39;ll call it &quot;itnmhost&quot;) was multi-homed.&nbsp; The Informix install created the etc/sqlhosts.ITNM file with a line that looked like:<br />
+&nbsp;<br />
+ITNM onsoctcp *itnmhost&nbsp; 9088&nbsp;<br />
+<br />
+I could not authenticate to the database (Error 951) - Neither the &quot;informix&quot; user nor &quot;ncim&quot; user worked.&nbsp; However once I removed the asterisk before the host name and made the line:<br />
+<br />
+ITNM onsoctcp itnmhost&nbsp; 9088<br />
+<br />
+This fixed the problem. Now I could connect to the database and populate it with the $NCHOME/precision/scripts/sql/informix/populate_informix_database.sh script.&nbsp; (The installation guide does not do a good job of explaining that you need to do this if you are installing Informix after running the ITNM installer.)<br />
+<br />
+Lastly, while still authenticated as the &quot;informix&quot; user, I gave the regular &quot;netcool&quot; connection privileges:<br />
+<br />
+$ dbaccess itnm -<br />
+grant connect to &#39;netcool&#39;;<br />
+<br />
+This allows me to run the dbaccess command as the netcool user without have to use a &quot;connect&#39; statement to authenticate to Informix (while on the same host.)<br />
+&nbsp;</div>
+
+<p dir="ltr">&nbsp;</p>

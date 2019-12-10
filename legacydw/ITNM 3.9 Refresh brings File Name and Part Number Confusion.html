@@ -1,0 +1,42 @@
+<div dir="ltr">I&#39;ve begun a project installing the refreshed ITNM v3.9 on an AIX system for a customer. &nbsp; This is my first look at the refresh and it didn&#39;t take long before the first surprise.</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">First off - it was time to find the software part number so the customer could download it.&nbsp; A little searching on Xtreme Leverage yielded:<br />
+&nbsp;
+<ul>
+	<li>IBM Tivoli Network Manager IP Edition 3.9 AIX Multilingual (updated to Network Manager 3.9 Fix Pack 2 equivalent)&nbsp;(CI7F1ML) - posted 13-Sep-2012</li>
+</ul>
+<br />
+My customer downloaded the part, but when I looked for CI7F1ML.tar.gz in the specified directory it was nowhere to be seen.&nbsp; Instead there was &quot;ITNP_IP_AIX.tar.gz&quot;&nbsp; - What the heck?&nbsp; Well it certainly wasn&#39;t my customer&#39;s fault, because when I tried downloading it in XL, Download Directory suggested that same name.</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">Then there is the mystery of the OMNIbus Part Number.&nbsp; Depending on how you search, you will find either</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">
+<ul>
+	<li>IBM Tivoli Netcool/OMNIbus Core 7.3.1 for AIX Multilingual&nbsp;(CZW01ML)&nbsp; - posted 25-Feb-2011</li>
+</ul>
+
+<div style="margin-left: 40px;">-OR-</div>
+
+<ul>
+	<li>IBM Tivoli Netcool OMNIbus V7.3.1 Core for AIX Multilingual&nbsp;(CI3JLML) - posted 21-Oct-2011</li>
+</ul>
+<br />
+They are almost the same size (358,993,920 vs 359,086,080 byte) - I sure hope they are the same except for something like header information.</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">The interesting thing is if you download the first one, Download Director will try to create a file named &quot;CZW01ML.tar&quot; - as expected, while the second one wants to create a file named &quot;NCO_CORE_AIX_ML.tar&quot;.&nbsp;&nbsp; Among other things, this latter name will not work with the ITNM installer, which looks for either CI3JLML.tar or OMNIbus-v7.3.1-aix5-5.21.36.tar (which is what I had to rename the file to, in order to let the ITNM installer do OMNIbus for me too.)</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">I&#39;ve never been a big fan of part numbers for file names.&nbsp; Once I dump it in a directory, who would know that&nbsp; CI3JLML.tar is really OMNIbus 7.3.1 for AIX ?&nbsp;&nbsp; But this change is worse - the suggested file names have no revision information in them at all.&nbsp;&nbsp; Wouldn&#39;t it make a lot more sense if the suggested downloaded file name be (in this case): &quot;OMNIbus-v7.3.1-aix5-5.21.36.tar&quot; ?</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">&nbsp;</div>

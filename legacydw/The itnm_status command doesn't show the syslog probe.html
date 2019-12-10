@@ -1,0 +1,35 @@
+<div dir="ltr">The<span style="font-weight: bold;"> itnm_status</span> command is certainly handy - So handy, in fact, that even on distributed ITNM installs I will put it on systems that have only OMNIbus components (i.e. only nco_pad running, no ncp_ctrl and no TIP)</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">I much prefer just typing &quot;itnm_status&quot; and seeing what&#39;s running vs &quot;nco_pa_status&quot; and having to deal with authentication.<br />
+<br />
+So imagine my annoyance when I found that it wasn&#39;t displaying the status of the syslog probe in my latest ITNM deployment.&nbsp; (OK actually, it was the &quot;syslogd&quot; probe - and syslog vs. syslogd is worth another post someday.)&nbsp; At any rate, I traced the misbehavior down to this code in nco_control.sh:</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for my_pid in $seen;&nbsp; do<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #ticket 248834 APAR - IV01170 Display only ITNM related process<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if [ $my_pid = &quot;nco_objserv&quot; -o $my_pid = &quot;nco_g_objserv_uni&quot; -o $my_pid = &quot;nco_p_tivoli_eif&quot; -o $my_pid = &quot;nco_p_mttrapd&quot; ]; then<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; show_nco_proc_status $my_pid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fi</div>
+
+<div dir="ltr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; done</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">I have no idea why someone thought it was a bad idea to show the status of&nbsp; processes deemed &quot;unrelated&quot; to ITNM. &nbsp; Seems like a dubious proposition in the first place, as it&#39;s highly likely that if a process is managed by the same PA daemon as the ObjectServer, the SNMP trap probe and so forth, it&#39;s probably &quot;related&quot;. &nbsp; What&#39;s really not debatable is that a syslog probe would certainly be lbe &quot;related&quot;.&nbsp; Here&#39;s how I &quot;fixed&quot; it for the time being:<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for my_pid in $seen;&nbsp; do<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #ticket 248834 APAR - IV01170 Display only ITNM related process<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if [ $my_pid = &quot;nco_objserv&quot; -o $my_pid = &quot;nco_g_objserv_uni&quot; -o $my_pid = &quot;nco_p_tivoli_eif&quot; -o $my_pid = &quot;nco_p_mttrapd&quot; \<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -o $my_pid = &quot;nco_p_syslog&quot; -o $my_pid = &quot;nco_p_syslogd&quot; \<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]; then<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; show_nco_proc_status $my_pid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fi<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; done</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">This begs the question about other possibly &quot;related&quot; processes (e.g. nco_g_objserv_bi&quot; in a fail-over situation)</div>

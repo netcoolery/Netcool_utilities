@@ -1,0 +1,33 @@
+<div dir="ltr">Many complex probe rules files are now really a <b>set</b> of files.&nbsp; A classic example is the snmptrap.rules file from the Netcool Include Library, which can actually &#39;include&#39; hundreds of other files.&nbsp; While this is a good way to structure a complex set of mostly independent cases (SNMP traps from different equipment manufacturers), it can make certain things tough.&nbsp; Examples include:</div>
+
+<div dir="ltr">
+<ul>
+	<li>How can I see the tree of files and the order they are included</li>
+	<li>How can I find out which files have code that modifies a certain field ?</li>
+	<li>How can I package up the current set of files (including lookup tables)&nbsp; to distribute them ?</li>
+</ul>
+
+<p>I&#39;ve created a nifty<sup>1</sup> little utility called &quot;rules_tree.pl&quot; to handle rules files as a set.&nbsp; You can get it <a href="https://www.ibm.com/developerworks/mydeveloperworks/blogs/netcoolery/resource/rules_tree.1.7.zip" rel="noopener noreferrer noopener noreferrer noopener noreferrer" target="_blank">here</a>.&nbsp; I&#39;ll give a couple of examples of how it&#39;s used:</p>
+
+<p>&nbsp;In this example, the entire tree of files included by the snmptrap.rules file (including lookup files) is piped as input to the tar command which creates the archive &quot;snmptrap.rules_tree.tar&quot;.&nbsp; Note that even if a rules file is included multiple times in the course of expanding the rules file, the file name will only be output once (unless the -showtree option is used)</p>
+
+<p><br />
+&nbsp;&nbsp;&nbsp; $ perl rules_tree.pl -showtables snmptrap.rules | tar cf snmptrap.rules_tree.tar -T -</p>
+
+<p>This example shows an easy way to &quot;grep&quot; an entire tree of files.&nbsp; In this particular case, we are looking for references to the <strong>Location </strong>column.&nbsp; The -contents option requests that the contents of the files be printed. The &quot;-prepend&quot; option causes the utility to preprend the file name in front of each line - this makes the output of the grep include the file name for each match.</p>
+
+<p>&nbsp;&nbsp;&nbsp; $ perl rules_tree.pl -contents -prepend syslog.rules | grep @Location<br />
+<br />
+This example shows the utility used to pass each file in the tree to another command for processing.&nbsp; In this particular case, the command is another perl script, details2nvp.pl, that converts &quot;details&quot; statements in rules files into assignments into the <strong>ExtendedAttr </strong>column.&nbsp; (More on that utility in the next <a href="https://www.ibm.com/developerworks/community/blogs/netcoolery/entry/details_bad_extendedattr_good?lang=en">blog&nbsp;post</a>.)&nbsp;&nbsp; The use of the &quot;-print0&quot; argument along with the -0 argument to xargs allows for file names that have spaces in them.</p>
+
+<p><br />
+&nbsp;&nbsp;&nbsp; $ perl rules_tree.pl -print0 snmptrap.rules | xargs -0 -l perl details2nvp.pl</p>
+
+<p>&nbsp;</p>
+
+<p>----------------------------------------------------------------------------------------------------------------------------------</p>
+
+<p><sup>1 </sup>Well... at least <u>I</u> think it&#39;s a nifty utility ... if you do too, then leave me a nice comment.</p>
+</div>
+
+<p dir="ltr">&nbsp;</p>

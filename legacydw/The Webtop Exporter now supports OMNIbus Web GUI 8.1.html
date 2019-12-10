@@ -1,0 +1,32 @@
+<p dir="ltr"><em>{Yes folks ... it&#39;s been a long time since the last blog entry.&nbsp; What better topic to resume with than the exporter utility for which the author has gained a small measure of recognition ?}</em></p>
+
+<p dir="ltr">In years gone by the OMNIbus Web GUI was called &quot;Webtop&quot; and there was no explicit import/export utility that allowed taking part or all of a Webtop configuration and exporting it from a development environment to a production environment.&nbsp;&nbsp; The exporter began life as a way to do that, taking advantage of the Webtop Administration Application Programming Interface (WAAPI for short) introduced with Webtop 1.1.</p>
+
+<p dir="ltr">From the beginning, there&#39;s always been the tension that WAAPI <strong>h</strong>as not supported the complete set of configuration options that the Admin GUI provides.&nbsp; This has continued from version to version of Webtop and Web GUI - but it&#39;s been &quot;close enough&quot; for many people to find the exporter useful.</p>
+
+<p dir="ltr">When Webtop GUI 7.3.1 was introduced, there was finally a native, supported import/export function included with the product.&nbsp;&nbsp; This reduced the demand for the exporter somewhat, but the feature sets don&#39;t strictly overlap.&nbsp; The native export/import has the great advantage of working in conjunction with TIP (and now DASH) import/export so that an entire portal configuration (including role assignments, views, pages. console preference profiles, etc.) can be exported from one environment to another.</p>
+
+<p dir="ltr">The exporter is a better choice when you are moving Web GUI objects only and you are changing versions (e.g. from 7.4 -&gt; 8.1).&nbsp;&nbsp; It&#39;s also the only option if you are looking to generate WAAPI output.</p>
+
+<p dir="ltr">--</p>
+
+<p dir="ltr">The last &quot;released&quot; version (2.5) of the exporter supported Web GUI through 7.3.1 (yeah... it&#39;s been a while).&nbsp;&nbsp; There were any number of &quot;betas&quot; that supported 7.4, but along came Web GUI 8.1. &nbsp;&nbsp; So this release, 2.6, supports Web GUI through 8.1</p>
+
+<p dir="ltr">Here&#39;s the <a href="https://www.ibm.com/developerworks/community/blogs/netcoolery/resource/ncw_export.2.6-Release1.linux.tgz">Linux&nbsp;version</a>.&nbsp; It&#39;s a 32 bit executable that should work fine on 64 bit systems as long as the appropriate library is installed.&nbsp; If you have a 64 bit system and you get this error:<br />
+<strong>&nbsp;./ncw_export: /lib/ld-linux.so.2: bad ELF interpreter: No such file or directory</strong></p>
+
+<p dir="ltr">Then you&#39;ll need to do this:</p>
+
+<p dir="ltr"><strong># yum -y install glibc.i686</strong></p>
+
+<p dir="ltr">I&#39;ll be posting for other architectures soon.</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<table border="0" cellpadding="0" cellspacing="0" dir="ltr" style="margin: 0px !important; padding: 0px !important; border: 0px !important; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: inherit; font-size: 15px; line-height: 1.1em !important; font-family: Consolas, 'Bitstream Vera Sans Mono', 'Courier New', Courier, monospace !important; vertical-align: baseline !important; border-collapse: collapse; border-spacing: 0px; width: 892px; text-align: left !important; border-radius: 0px !important; bottom: auto !important; float: none !important; height: auto !important; left: auto !important; outline: 0px !important; overflow: visible !important; position: static !important; right: auto !important; top: auto !important; box-sizing: content-box !important; direction: ltr !important; box-shadow: none !important; table-layout: auto !important; color: rgb(51, 51, 51); letter-spacing: normal; orphans: auto; text-indent: 0px; text-transform: none; white-space: normal; widows: 1; word-spacing: 0px; -webkit-text-stroke-width: 0px; background: none !important;">
+	<tbody style="margin: 0px !important; padding: 0px !important; border: 0px !important; font-style: normal !important; font-variant: inherit; font-weight: normal !important; font-stretch: inherit; font-size: 1em !important; line-height: 1.1em !important; font-family: Consolas, 'Bitstream Vera Sans Mono', 'Courier New', Courier, monospace !important; vertical-align: baseline !important; border-radius: 0px !important; bottom: auto !important; float: none !important; height: auto !important; left: auto !important; outline: 0px !important; overflow: visible !important; position: static !important; right: auto !important; text-align: left !important; top: auto !important; width: auto !important; box-sizing: content-box !important; direction: ltr !important; box-shadow: none !important; background: none !important;">
+		<tr style="margin: 0px !important; padding: 0px !important; border: 0px !important; font-style: normal !important; font-variant: inherit; font-weight: normal !important; font-stretch: inherit; font-size: 1em !important; line-height: 1.1em !important; font-family: Consolas, 'Bitstream Vera Sans Mono', 'Courier New', Courier, monospace !important; vertical-align: baseline !important; border-radius: 0px !important; bottom: auto !important; float: none !important; height: auto !important; left: auto !important; outline: 0px !important; overflow: visible !important; position: static !important; right: auto !important; text-align: left !important; top: auto !important; width: auto !important; box-sizing: content-box !important; direction: ltr !important; box-shadow: none !important; background: none !important;">
+			<td class="code" style="margin: 0px !important; padding: 0px !important; border: 0px !important; font-style: normal !important; font-variant: inherit; font-weight: normal !important; font-stretch: inherit; font-size: 1em !important; line-height: 1.1em !important; font-family: Consolas, 'Bitstream Vera Sans Mono', 'Courier New', Courier, monospace !important; vertical-align: baseline !important; border-radius: 0px !important; bottom: auto !important; float: none !important; height: auto !important; left: auto !important; outline: 0px !important; overflow: visible !important; position: static !important; right: auto !important; text-align: left !important; top: auto !important; width: 892px; box-sizing: content-box !important; direction: ltr !important; box-shadow: none !important; background: none !important;">&nbsp;</td>
+		</tr>
+	</tbody>
+</table>

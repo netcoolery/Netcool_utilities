@@ -1,0 +1,80 @@
+<div dir="ltr">I am a strong proponent of installing and running products from the Netcool suite under a dedicated user ID that is not the root user. &nbsp; Of course this means that certain processes that require root access will need to be set up as &quot;setuid root&quot;. When I install the ITNM product, there&#39;s a handy script that does just that for the core ITNM processes (things like ncp_df_ping, ncp_dh_ping, ncp_poller and so forth.)</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">Curiously, the ITNM scripts don&#39;t do anything about the SNMP trap probe (aka the &quot;mttrapd&quot; probe), even though the ITNM installer will happily install this probe as part of a unified ITNM/OMNIbus install.&nbsp; For the record, here&#39;s how to do it:&nbsp; (HT to <strong>Alex Greenbank</strong> for the 64-bit linux info)</div>
+
+<p dir="ltr">&nbsp;</p>
+
+<div dir="ltr">
+<p>For <b>linux:</b>&nbsp;&nbsp;&nbsp; (First you must check for 32 vs 64 bit versions)</p>
+
+<p style="margin-left: 0.2in; margin-bottom: 0in"><font face="Lucida Console, monospace">#</font> <strong>$OMNIHOME/probes/nco_p_mttrapd -version</strong><br />
+Netcool/OMNIbus MTTrapd probe - Version 7.4.0 64-bit&nbsp;&nbsp;&nbsp;&nbsp; &lt;-- Notice that this example is the 64 bit version</p>
+
+<p>For <b>linux</b> (32 bit version):</p>
+
+<p style="margin-left: 0.2in; margin-bottom: 0in"><font face="Lucida Console, monospace"># <strong>cd $OMNIHOME/probes/linux2x86</strong></font></p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp; <strong>chown root nco_p_mttrapd</strong><br />
+&nbsp; &nbsp; &nbsp; # &nbsp; <strong>chmod u+sx nco_p_mttrapd</strong>
+
+<p style="margin-left: 0.2in; margin-bottom: 0in"><font face="Lucida Console, monospace"># <strong>echo &ldquo;$NCHOME/platform/linux2x86/lib&rdquo; &gt;&gt; /etc/ld.so.conf</strong></font></p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp; <strong>/sbin/ldconfig</strong>
+
+<p>For <b>linux </b>(64 bit version):&nbsp;&nbsp;&nbsp;</p>
+
+<p style="margin-left: 0.2in; margin-bottom: 0in"><font face="Lucida Console, monospace">#<strong> cd $OMNIHOME/platform/linux2x86</strong></font><strong>/probes64</strong></p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp; <strong>chown root nco_p_mttrapd</strong><br />
+&nbsp; &nbsp; &nbsp; # &nbsp; <strong>chmod u+sx nco_p_mttrapd</strong>
+
+<p style="margin-left: 0.2in; margin-bottom: 0in"><font face="Lucida Console, monospace"># <strong>echo &ldquo;$NCHOME/platform/linux2x86/lib64&rdquo; &gt;&gt; /etc/ld.so.conf</strong></font><br />
+<font face="Lucida Console, monospace">#&nbsp;<strong>echo &ldquo;$OMNIHOME/platform/linux2x86/lib64&rdquo; &gt;&gt; /etc/ld.so.conf</strong></font></p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; <strong>/sbin/ldconfig</strong>
+
+<div>&nbsp;</div>
+
+<div>For<b> AIX:</b>
+
+<p style="margin-left: 0.2in; margin-bottom: 0in"><font face="Lucida Console, monospace">#<strong> cd $OMNIHOME/probes/aix5</strong></font></p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; <strong>chown root nco_p_mttrapd</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; <strong>chmod 4555 nco_p_mttrapd</strong>
+
+<p style="margin-left: 0.2in; margin-bottom: 0in;"><font face="Lucida Console, monospace">#&nbsp;</font><strong> cd&nbsp; /usr/lib</strong></p>
+
+<div>&nbsp; &nbsp; &nbsp; # &nbsp; <strong>ln -s $NCHOME/platform/aix5/lib/libOpl_r.so</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp;<strong> ln -s $NCHOME/platform/aix5/lib/libnetcool_r.so</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp; <strong>ln -s $NCHOME/platform/aix5/lib/libPa_r.so</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp; <strong>ln -s $NCHOME/platform/aix5/lib/libslclient_r.so</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp;<strong> ln -s $NCHOME/platform/aix5/lib/libsybct_r.so</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp; <strong>ln -s $NCHOME/platform/aix5/lib/libsybcs_r.so</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;<strong> ln -s $NCHOME/platform/aix5/lib/libsybtcl_r.so</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp; <strong>ln -s $NCHOME/platform/aix5/lib/libsybcomn_r.so</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp;<strong> ln -s $NCHOME/platform/aix5/lib/libsybintl_r.so</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp; <strong>ln -s&nbsp; $NCHOME/platform/aix5/lib/libtre.a</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp;<strong> ln -s&nbsp; $NCHOME/platform/aix5/lib/libicuuc40.a</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;<strong> ln -s&nbsp; $NCHOME/platform/aix5/lib/libicui18n40.a</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # &nbsp; <strong>ln -s&nbsp; $NCHOME/platform/aix5/lib/libicudata40.a</strong></div>
+
+<div>&nbsp;</div>
+
+<div>All of the links are necessary because AIX requires setuid programs to use shared libraries from the default search path (/lib or /usr/lib).</div>
+
+<div>&nbsp;</div>
+
+<div><b>Note:</b> The&nbsp; SNMP Trap Probe gives away its permissions once it has opened the UDP port specified by its properties. &nbsp; When examining the running probe with the &quot;ps&quot; command, don&#39;t be alarmed to see it running as an ordinary user, even though you configured it for &quot;setuid root&quot; operation.</div>
+
+<div>&nbsp;</div>
+
+<div><span style="font-weight: bold;">A Further Note:&nbsp; </span>It&#39;s high time we Netcoolers stopped using the term &quot;Multi-threaded trap probe&quot; for this probe. &nbsp; That term is a legacy from years ago when most probes were single-threaded and the new &quot;multi-threaded&quot; trap probe represented a significant performance boost. &nbsp; Now all our probes are multi-threaded and it makes no sense to call this out in the name. &nbsp; Let&#39;s get back to calling it what it is:&nbsp; The <span style="font-weight: bold;">SNMP Trap</span> probe.</div>
+
+<p><strong>Update for Solaris</strong>:&nbsp; I haven&#39;t vetted this personally, but here&#39;s a link for doing this on&nbsp; <a href="http://www-01.ibm.com/support/docview.wss?uid=swg21291414&amp;lnk=uctug_tivoli_nwsltr_NCOMNIBUS" target="_blank">Solaris</a>.</p>
+
+<p>&nbsp;</p>
+
+<div>&nbsp;</div>
+
+<div>&nbsp;</div>
+</div>
+</div>
+
+<p dir="ltr">&nbsp;</p>

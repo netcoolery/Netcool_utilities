@@ -1,0 +1,58 @@
+<div dir="ltr">What a head-scratcher! &nbsp;&nbsp; I&#39;d been working on refining the discovery of a Customer&#39;s network, when one day all ITNM Network Views started appearing as if they were empty!&nbsp; What was particularly strange is that this change came on suddenly, during a period where I had made no changes to the Customer ITNM deployment.&nbsp; The only thing that had &quot;changed&quot;, so to speak, was that my laptop had been forcibly rebooted by our Tivoli Endpoint Management software.&nbsp; I don&#39;t know if it was an update to the IBM java client itself, or something related to it, but the same Network Views that worked the day before now showed up empty.&nbsp;</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr"><a href="https://www.ibm.com/developerworks/mydeveloperworks/blogs/netcoolery/resource/BLOGS_UPLOADED_IMAGES/NoDevices.JPG
+" target="_blank"><img alt="image" src="https://dw1.s81c.com/developerworks/mydeveloperworks/blogs/netcoolery/resource/BLOGS_UPLOADED_IMAGES/NoDevices.JPG" style="position: relative; margin: 1em 1em 0pt 0pt; display: block; float: left" /></a></div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">The first thing I did was check the NCIM database, to make sure the entities were still there. &nbsp; I could still report on the entities via SQL, so it had to be something with Topoviz or the actual Java client.<br />
+<br />
+One nice thing about Topoviz is that if you change the logging level in the properties file, you don&#39;t have to restart anything.&nbsp; I edited the<br />
+&nbsp;<span style="font-weight: bold">$NCHOME/precision/profiles/TIPProfile/etc/tnm/topoviz.properties</span> file, and changed this property:&nbsp; topoviz.log.level=ALL</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">Right away, the <span style="font-weight: bold">$NCHOME/precision/profiles/TIPProfile/logs/tnm/ncp_topoviz.0.log</span> file started to have much more information about what the client was doing.&nbsp; But it still didn&#39;t make sense to me.&nbsp;</div>
+
+<div dir="ltr">&nbsp;
+<hr size="2" width="100%" /></div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">It was time for help from Support, and I was pointed to this Technote:
+<div class="messageCont" dir="ltr"><span class="left" style="font-family: Tahoma; color: #000000; font-size: 10pt"><span style="font-style: normal; color: #0000ff"><b><a class="link" href="http://www-01.ibm.com/support/docview.wss?uid=swg21571622&amp;myns=swgtiv&amp;mynp=OCSSSHRK&amp;mync=E" style="color: #0000ff" title="http://www-01.ibm.com/support/docview.wss?uid=swg21571622&amp;myns=swgtiv&amp;mynp=OCSSSHRK&amp;mync=E">http://www-01.ibm.com/support/docview.wss?uid=swg21571622&amp;myns=swgtiv&amp;mynp=OCSSSHRK&amp;mync=E</a></b></span></span><br />
+<br />
+<span class="system">Clued in by the Technote, I enabled the java console for my browser and here&#39;s an excerpt of what I saw&nbsp; (my edits in <b>bold</b>):</span>
+
+<blockquote><span class="system">FINEST: retrieving entity group status, URL: https://<b>hostname</b>:16311/ibm/console/webtop/TransientEntityRegister, parameters: groups=NCP_VIEW_118</span><br />
+<span class="system">java.lang.RuntimeException: Unable to get entity group status for group &#39;NCP_VIEW_118&#39;.</span><br />
+<span class="system">&nbsp;&nbsp;&nbsp; at com.micromuse.precision.common.webtop.WebtopDAO.getEntityGroupStatus(WebtopDAO.java:454)</span><br />
+<span class="system">&nbsp;&nbsp;&nbsp; at com.micromuse.precision.common.webtop.TransientEntityStatusFeed$StatusFeedThread.run(TransientEntityStatusFeed.java:213)</span><br />
+<span class="system">Caused by: java.security.AccessControlException: Access denied (java.net.SocketPermission <b>hostip</b>:16311 connect,resolve)</span></blockquote>
+<br />
+<span class="system"><span class="system">The Technote said to edit the java.policy file - that took a bit of research because my laptop (like most) had several JREs around - So first I had to figure out which one my browsers (both Firefox and IE) were using.&nbsp;&nbsp; For my IBM Windows 7 based laptop, the security file turned out to be: </span></span>
+
+<blockquote><span class="system"><span class="system">C:\Program Files (x86)\IBM\Java60\jre\lib\security\java.policy</span></span></blockquote>
+<br />
+<span class="system"><span class="system"><span class="system">The next issue is that the Technote&#39;s suggested fix is syntactically wrong.&nbsp;&nbsp; The correct fix (added to the end of the policy file) looks something like this - obviously the stuff in <b>bold</b> should be set correctly for the site and host in question:</span></span></span>
+
+<blockquote><span class="system"><span class="system"><span class="system">// This added specifically to support Topoviz Java Client for <b>Your Site</b></span><br />
+<span class="system">grant {</span><br />
+<span class="system">&nbsp;&nbsp; permission java.net.SocketPermission &quot;<b>XXX.XXX.XXX.XXX</b>:16311&quot;, &quot;connect, accept&quot;;</span><br />
+<span class="system">}; </span></span></span></blockquote>
+
+<p><span class="system"><span class="system"><span class="system"><span class="system">That fixed the problem!</span></span></span></span><br />
+&nbsp;</p>
+
+<p><strong>UPDATE (4/22/13):</strong>&nbsp; There is a new Technote with&nbsp;corrected information:</p>
+
+<p><a href="http://www.ibm.com/support/docview.wss?uid=swg21616363"><font face="Helv" size="2"><font face="Helv" size="2">http://www.ibm.com/support/docview.wss?uid=swg21616363</font></font></a></p>
+
+<p>It&#39;s good to see IBM Support getting that one fixed!<br />
+&nbsp;</p>
+</div>
+</div>
+
+<p dir="ltr">&nbsp;</p>

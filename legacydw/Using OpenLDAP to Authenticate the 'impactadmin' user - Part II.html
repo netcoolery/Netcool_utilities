@@ -1,0 +1,113 @@
+<p dir="ltr">In the&nbsp;<a href="https://www.ibm.com/developerworks/community/blogs/netcoolery/entry/Using_OpenLDAP_to_Authenticate_the_impactadmin_user_Part_I1?lang=en" rel="noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer" target="_blank">previous&nbsp;post</a> I showed how to set up an OpenLDAP server to be the authentication source for the <strong>impactadmin </strong>user.&nbsp;&nbsp; Reliable authentication of this user is critical for Impact.&nbsp; Not only is <strong>impactadmin </strong>used as a base administrative user, it is also internally to connect components.</p>
+
+<p dir="ltr">Federating two LDAP servers is accomplished by changing directory to $<span style="font-family:'courier new' , 'courier' , monospace">IMPACT_HOME/install/security</span> and running the <span style="font-family:'courier new' , 'courier' , monospace">confAuth4LDAP.sh</span> script twice.&nbsp;&nbsp; This script not only sets up (or adds) to the LDAP Registry configuration, it also sets (or resets) the default administrative user.&nbsp; Since we want the administrative user to be <strong>impactadmin</strong>, we will need to add the OpenLDAP repository <u>after</u> adding the Corporate LDAP server.</p>
+
+<p dir="ltr"><strong>Note:</strong> As a &quot;Best Practice&quot; recommendation, if you have an Impact cluster with two hosts I suggest setting up an instance of OpenLDAP on each host with the same values for the <strong>impactadmin </strong>password.&nbsp;&nbsp; This will aid the cluster in continuing operation if the opposite host goes down, since it will not depend on authenticating <strong>impactadmin </strong>&quot;off-host&quot;.&nbsp; You will need to perform the federation steps on both hosts, of course.</p>
+
+<hr dir="ltr" />
+<p dir="ltr">Let&#39;s work through an example:</p>
+
+<p dir="ltr">We&#39;ll assume we have a Corporate LDAP server for <strong>acme.com</strong> and we have the necessary binding information, base DN, and so forth. Start by making a copy of the <span style="font-family:'courier new' , 'courier' , monospace">impactdap.properties</span> file for each LDAP server you will be federating, e.g.:</p>
+
+<ul dir="ltr">
+	<li><span style="font-family:'courier new' , 'courier' , monospace"><strong>cd $IMPACT_HOME/install/security</strong></span></li>
+	<li><span style="font-family:'courier new' , 'courier' , monospace"><strong>cp impactdap.properties impactdap.properties.ACME</strong></span></li>
+	<li><span style="font-family:'courier new' , 'courier' , monospace"><strong>cp impactdap.properties impactdap.properties.NOI</strong></span></li>
+</ul>
+
+<p dir="ltr">Then edit the two new files following the guidelines from&nbsp;<a href="https://www.ibm.com/support/knowledgecenter/SSSHYH_7.1.0.9/com.ibm.netcoolimpact.doc/admin/imag_ldap_impactdap_props.html" rel="noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer" target="_blank">Properties&nbsp;in&nbsp;impactdap.properties</a>. Here are the values for the<span style="font-family:'courier new' , 'courier' , monospace"> impactdap.properties.NOI</span> file:</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<table border="1" dir="ltr" height="181" style="table-layout:fixed;border-collapse:collapse;border-color:#696969" width="506">
+	<tbody>
+		<tr>
+			<td style="width:169px;border-color:#696969"><strong>Property Name</strong></td>
+			<td style="width:331px;border-color:#696969"><strong>Value in the impactdap.properties.NOI file</strong></td>
+		</tr>
+		<tr>
+			<td style="width:169px;border-color:#696969"><span style="font-size:12px">LDAPRepositoryName</span></td>
+			<td style="width:331px;border-color:#696969">NOI_LOCAL <em>- This must be different from the other repository</em></td>
+		</tr>
+		<tr>
+			<td style="width:169px;border-color:#696969"><span style="font-size:12px">LDAPServerType</span></td>
+			<td style="width:331px;border-color:#696969">Custom</td>
+		</tr>
+		<tr>
+			<td style="width:169px;border-color:#696969"><span style="font-size:12px">LDAPPort</span></td>
+			<td style="width:331px;border-color:#696969">389</td>
+		</tr>
+		<tr>
+			<td style="width:169px;border-color:#696969"><span style="font-size:12px">LDAPHost</span></td>
+			<td style="width:331px;border-color:#696969"><em>Use the fully qualified name of the local host</em></td>
+		</tr>
+		<tr>
+			<td style="width:169px;border-color:#696969"><span style="font-size:12px">LDAPBindDN</span></td>
+			<td style="width:331px;border-color:#696969">cn=admin,DC=noi,DC=local</td>
+		</tr>
+		<tr>
+			<td style="width:169px;border-color:#696969"><span style="font-size:12px">LDAPBindPass</span></td>
+			<td style="width:331px;border-color:#696969"><em>The password for the OpenLDAP &quot;admin&quot; user.&nbsp;&nbsp; It may be necessary to add this line to the file</em></td>
+		</tr>
+		<tr>
+			<td style="width:169px;border-color:#696969"><span style="font-size:12px">LDAPBaseEntry</span></td>
+			<td style="width:331px;border-color:#696969">DC=noi,DC=local</td>
+		</tr>
+		<tr>
+			<td style="width:169px;border-color:#696969"><span style="font-size:12px">LDAPSSORealm</span></td>
+			<td style="width:331px;border-color:#696969"><em>Make sure this matches (in both files) whatever you&#39;ve set in DASH if you plan to integrate the Impact GUI server into DASH</em></td>
+		</tr>
+	</tbody>
+</table>
+
+<p dir="ltr">You can leave the custom search filtering settings commented out.</p>
+
+<p dir="ltr">I recommend testing the values for both repositories with the ldapsearch command to make sure everything is correct.&nbsp;&nbsp; In the examples below, replace the text in <span style="color:#ff0000">red</span> with the appropriate values.</p>
+
+<ul dir="ltr">
+	<li><strong><span style="font-family:'courier new' , 'courier' , monospace">$ ldapsearch -h localhost -b dc=noi,dc=local -D cn=admin,dc=noi,dc=local -w<span style="color:#ff0000"> admin_PWD</span> | grep uid</span></strong></li>
+	<li><strong><span style="font-family:'courier new' , 'courier' , monospace">$ ldapsearch -h <span style="color:#ff0000">ACME_LDAP_HOST</span> -b <span style="color:#ff0000">ACME_BASE</span> -D <span style="color:#ff0000">ACME_BIND_USER</span>&nbsp; -w <span style="color:#ff0000">ACME_BIND_PWD</span> | grep sAMAccountName</span></strong></li>
+</ul>
+
+<p dir="ltr">Note that the above example assumed that the Corporate LDAP server type was Microsoft AD.&nbsp;&nbsp; Other directory types might require grepping for a different attribute.&nbsp; Make sure that the first ldapsearch command returns &#39;impactadmin&#39; and the second command returns the corporate users you wish to authenticate.</p>
+
+<p dir="ltr">As noted above, through at least Impact 7.1.0.15, the&nbsp; <a href="https://www.ibm.com/support/knowledgecenter/SSSHYH_7.1.0.9/com.ibm.netcoolimpact.doc/admin/imag_ldap_federation_c.html" rel="noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer" target="_blank">Impact&nbsp;documentation&nbsp;on&nbsp;LDAP&nbsp;Federation</a>&nbsp; is exactly backwards. &nbsp; It is important to run the <span style="font-family:'courier new' , 'courier' , monospace">confAuth4LDAP.sh</span> script with the <u>Corporate Directory</u> properties first!&nbsp;&nbsp; The reason is that the new &quot;admin&quot; user supplied on the command line will be substituted throughout the configuration files for internal authorizations.&nbsp;&nbsp; Since you want the entire process to end up with that user being <strong>impactadmin</strong>, you must federate the OpenLDAP repository as the last one.</p>
+
+<p dir="ltr">To federate the Corporate Directory first, you will need a temporary user to act as the impact administrative user.&nbsp; I&#39;ve generally been able to use the bind user.&nbsp; Make sure to overwrite the <span style="font-family:'courier new' , 'courier' , monospace">impactdap.properties</span> file with the values for the Corporate Directory.&nbsp;&nbsp; You will also need to know the original current <strong>impactadmin </strong>password that Impact is using for its file-based or ObjectServer based authentication.</p>
+
+<ul dir="ltr">
+	<li><span style="font-family:'courier new' , 'courier' , monospace"><strong>cp impactdap.properties.ACME impactdap.properties</strong></span></li>
+	<li><span style="font-family:'courier new' , 'courier' , monospace"><strong>./confAuth4LDAP.sh enable <span style="color:#ff0000">ACME_BIND_USER ACME_BIN_PASSWORD CURRENT_impactadmin_PASSWORD</span></strong></span></li>
+</ul>
+
+<p dir="ltr"><span style="font-family:'arial' , 'helvetica' , sans-serif">This will convert Impact to using the Corporate Directory and will temporarily set the bind user as the internal Impact administrative user.&nbsp; Now repeat the process for the OpenLDAP server:</span></p>
+
+<ul dir="ltr">
+	<li><span style="font-family:'courier new' , 'courier' , monospace"><strong>cp impactdap.properties.NOI impactdap.properties</strong></span></li>
+	<li><span style="font-family:'courier new' , 'courier' , monospace"><strong>./confAuth4LDAP.sh enable impactadmin <span style="color:#ff0000">IMPACTADMIN_PASSWORD</span> <span style="color:#ff0000">ACME_BIN_PASSWORD</span></strong></span></li>
+</ul>
+
+<p dir="ltr"><span style="font-family:'arial' , 'helvetica' , sans-serif">This will add the local OpenLDAP server to the federation and set &#39;impactadmin&#39; back as the Impact internal administrative user.</span></p>
+
+<p dir="ltr"><span style="font-family:'arial' , 'helvetica' , sans-serif">There&#39;s one final task (as of Impact 7.1.0.15 - this may be fixed in later versions). </span></p>
+
+<ul dir="ltr">
+	<li><strong><span style="font-family:'courier new' , 'courier' , monospace">cd $IMPACT_HOME/wlp/usr/shared/config</span></strong></li>
+	<li><strong><span style="font-family:'courier new' , 'courier' , monospace">vi ldapRegistry.xml</span></strong></li>
+</ul>
+
+<p dir="ltr"><span style="font-family:'arial' , 'helvetica' , sans-serif">Search down for the section that begins with &quot;&lt;primaryRealm name=&quot;.&nbsp;&nbsp; You may find that there is only one</span> &quot;&lt;participatingBaseEntry&quot; line, but there should be two.</p>
+
+<p dir="ltr">Correct the entry to look something like this:</p>
+
+<p dir="ltr" style="margin-left:40px"><span style="font-family:'courier new' , 'courier' , monospace">&lt;primaryRealm name=&quot;ACME_PROD&quot; allowOpIfRepoDown=&quot;true&quot;&gt;</span></p>
+
+<p dir="ltr" style="margin-left:40px"><span style="font-family:'courier new' , 'courier' , monospace">&lt;participatingBaseEntry name=&quot;DC=ACME,DC=COM&quot;/&gt;</span></p>
+
+<p dir="ltr" style="margin-left:40px"><span style="font-family:'courier new' , 'courier' , monospace">&lt;participatingBaseEntry name=&quot;DC=NOI,DC=LOCAL&quot;/&gt;</span></p>
+
+<p dir="ltr" style="margin-left:40px"><span style="font-family:'courier new' , 'courier' , monospace">&lt;primaryRealm/&gt;</span></p>
+
+<p dir="ltr">You will need to stop and restart the GUI Server and Impact Server and then you will be doing all authentication through LDAP, including getting <strong>impactadmin </strong>from the OpenLDAP repository under local control.</p>
+
+<p dir="ltr">&nbsp;</p>

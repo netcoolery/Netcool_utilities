@@ -1,0 +1,23 @@
+<p dir="ltr">The Webtop Exporter continues along in its little niche (see <a href="https://www.ibm.com/developerworks/community/blogs/netcoolery/entry/The_Webtop_Exporter_now_supports_OMNIbus_Web_GUI_8_1?lang=en" rel="noopener noreferrer" target="_blank">this&nbsp;post</a> for background if you need it.)</p>
+
+<p dir="ltr">I&#39;ve added a couple of features to handle some additional use cases.</p>
+
+<p dir="ltr">I&#39;ve placed the distribution in a publicly accessible Box folder <a href="https://ibm.box.com/s/bg9kjn18d81l5msx1fyfs5xdrq3t8mng" rel="noopener noreferrer" target="_blank">here.&nbsp; </a>Going forward, the latest release will always be available in the &quot;Current release&quot; sub-folder. I am now only going to be generating Win32 and Linux versions of the exporter.&nbsp; For AIX, ZLinux, etc. I&#39;ll paraphrase my comment on the previous post: <em>What you can do, is just tar up the $WEBGUI_HOME/etc directory and copy it to a Windows or Linux host then use the exporter with the -conftar option to read the configuration from the supplied tar file (or use a zip file and -confzip.)</em></p>
+
+<p dir="ltr">The new <strong>-readlist</strong> and <strong>-writelist</strong> options are useful for creating and exporting subsets of Web GUI objects.&nbsp;&nbsp; The -writelist &lt;FILE&gt; option will create a manifest file for everything being exported, while the -readlist &lt;FILE&gt; option will export items as directed by the manifest.</p>
+
+<p dir="ltr"><strong>Here&#39;s a use case</strong>:&nbsp; Suppose you&#39;ve just installed Web GUI and would like to export changes in the future without reexporting all of the &quot;out of the box&quot; filters, views etc.&nbsp;&nbsp; You could generate a base manifest file with a command like:</p>
+
+<p dir="ltr" style="margin-left:40px">$ <strong>ncw_export -writelist BaseManifest.txt -common -allfilters -allviews -filtercollections -metrics -relationships -maps -tar myBase.tar</strong></p>
+
+<p dir="ltr">The resulting manifest effectively lists all of the &quot;out of the box&quot; filters, views, etc.&nbsp;&nbsp; Later on, after customizations have been created, the same command could be used to create another manifest and the &quot;diff&quot; of the two would identify new objects, which could be exported using a manifest file with just the new objects.</p>
+
+<p dir="ltr">(OK - the attentive reader might say &quot;there ought to be an -exclude &lt;FILE&gt; option, that would allow quickly excluding the base objects from an export using a manifest&quot;.&nbsp;&nbsp; Maybe that will come in the next release ... ask me nicely :-) )</p>
+
+<p dir="ltr">I&#39;ll draw your attention to one more new feature:&nbsp;&nbsp; There is now a <strong>-sourceinfo</strong> option that will tell you where the exporter found the instance of Web GUI that it is exporting.&nbsp; It honors the various options and environmental variables that the exporter uses, so you can use this as a way to &quot;check your work&quot; if you are concerned about pointing to the proper instance of Web GUI.</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">&nbsp;</p>

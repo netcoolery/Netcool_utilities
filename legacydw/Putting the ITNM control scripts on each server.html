@@ -1,0 +1,38 @@
+<div dir="ltr">I&#39;ve mentioned before that I like having the ITNM control scripts on every server in an distributed ITNM solution.&nbsp; I like to be able to start with &quot;itnm_status&quot; on any server.</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">At present, the ITNM installer doesn&#39;t put those scripts on a server where the only thing installed is OMNIbus stuff.<br />
+<br />
+Here&#39;s a quick way to move what you need:</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">On a server with the ITNM core processes,&nbsp; do the following:<br />
+<br />
+$ cd $NCHOME</div>
+
+<div dir="ltr">$ tar cf ITNM_control_scripts.tar precision/bin/*_control* precision/bin/itnm_st* precision/bin/tip_server.sh<br />
+<br />
+Now copy the tar file to the target server and untar it relative to the $NCHOME directory.&nbsp;&nbsp; Add $NCHOME/precision/bin</div>
+
+<div dir="ltr">to your PATH and you should be able to run the &quot;itnm_status&quot; command.<br />
+<br />
+If the script complains with a message like this:</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">nco_pad &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; RUNNING&nbsp; PID=12345 nco_pa<br />
+But /opt/netcool/etc/itnm,cfg says it is installed elsewhere</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">The problem is probably&nbsp; a&nbsp; missing $NCHOME/etc/itnm.cfg file.<br />
+<br />
+For a quick fix on an OMNIbus-only host do this:</div>
+
+<div dir="ltr">&nbsp;</div>
+
+<div dir="ltr">$ echo &quot;nco=$(hostname)&quot; &gt; $NCHOME/etc/itnm.cfg<br />
+<br />
+That should stop the complaints.</div>

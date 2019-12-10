@@ -1,0 +1,99 @@
+<p dir="ltr">In my <a href="https://www.ibm.com/developerworks/community/blogs/netcoolery/entry/damn_the_perfectionism_full_blog_ahead?lang=en" target="_blank">introductory&nbsp;blog&nbsp;post</a> I mentioned that I&#39;ve been working with OMNIbus for a long time.&nbsp; For evidence, I will point out that I was one of the first batch of Certified Netcool Engineers (there were five of us that passed.)&nbsp; This was the &quot;beta&quot; version of the OMNIbus certification program and we were the first (back in January 1998.)&nbsp; So why do I bring this up?</p>
+
+<p dir="ltr">I bring it up because one of the exercises in the certification involved diagnosing a poorly performing ObjectServer, and one of the main problems was that the ObjectServer was bogged down with tens of thousands of records in <strong>alerts.details</strong>.&nbsp;&nbsp;&nbsp; Fifteen years later, I still see this all the time when I&#39;m first called to look at existing customer deployments.</p>
+
+<p dir="ltr">Part of the problem is that our own Netcool Knowledge Library (NCKL) is a terrible offender.&nbsp;&nbsp; &quot;Out of the box&quot;, it is littered with hundreds of <strong>details </strong>statements that are not commented out.&nbsp; Particularly odious are the &quot;<strong>details($*)</strong>&quot; statements.&nbsp;&nbsp; I did a quick check of the 3.8 release of NCKL.&nbsp;&nbsp; Without uncommenting any vendor includes, there were still 430 instances of <strong>details</strong> including 88 instances of <strong>details($*)</strong>.</p>
+
+<p dir="ltr">This is a recipe for bogging your ObjectServer down quickly.&nbsp;&nbsp; Remember that every &quot;detail&quot; is an individual row in the <strong>alerts.details</strong> table.&nbsp; So a statement like: <strong>details($ifIndex,$ifAdminStatus,$ifOperStatus)</strong> isn&#39;t too bad because it only inserts three records.&nbsp; But <strong>details($*)</strong> inserts a record for every probe element variable.&nbsp;&nbsp; So if you have 10,000 events in <strong>alerts.status</strong> that were processed by that part of the rules file, you could easily have 100,000-200,000 details records dragging down your ObjectServer.</p>
+
+<p dir="ltr">The original idea behind the details feature was that it was nice to be able to associate various name-value pairs with an event while debugging the construct of probe rules files.&nbsp; One of the first rules of&nbsp; &quot;Best Practice&quot; for those of us who went to customer sites was to make sure that we had commented out all of the &quot;details&quot; statements in the rules files before we left the site.&nbsp;&nbsp; This, however, was centered around an ideal for rules development that somehow thought that rules files could be &quot;done&quot;.</p>
+
+<p dir="ltr">In our rough and tumble real world of Network Management, new devices (or new agent versions) are constantly introduced into the managed network and thus rules file development will always lag the actual events (such as SNMP traps) being seen.&nbsp;&nbsp; Thus a rules file would usually end with some sort of &quot;catch all&quot; clause to handle an unforeseen event -- and that part of the file would generally include an uncommented <strong>details</strong> statement - for the benefit of the rules maintainer.&nbsp; From that seed of practice grew NCKL&#39;s current undisciplined behavior.</p>
+
+<p dir="ltr"><strong><em><span style="font-size:14px;">An Alternative</span></em></strong></p>
+
+<p dir="ltr">In recent years, an excellent alternative to <strong>details</strong> has been added to the product.&nbsp; OMNIbus 7.2 added the <strong>ExtendedAttr</strong> column as a standard column in <strong>alerts.status</strong>.&nbsp;&nbsp; Another edition was the <strong>nvp_add</strong> function to the probe rules language.&nbsp;&nbsp; This function makes it easy to keep a set of name-value pairs in a character variable.&nbsp;&nbsp; Although <strong>ExtendedAttr </strong>was originally intended as place to hold various name-value pairs coming from Tivoli&#39;s legacy TEC console, it makes a great field to store the information that used to be put into the details.&nbsp;&nbsp; The overhead of adding a few more characters into a varchar within the same event is an order of magnitude lower than maintaining an N:1 joining relationship between the status and details tables.</p>
+
+<p dir="ltr">The recommended practice:&nbsp;&nbsp; Replace <strong>details</strong> statements as shown below:</p>
+
+<p dir="ltr"><strong>details($ifIndex,$ifAdminStatus,$ifOperStatus) </strong></p>
+
+<p dir="ltr"><strong>&nbsp; &nbsp; </strong>becomes</p>
+
+<p dir="ltr"><strong>@ExtendedAttr = nvp_add(@ExtendedAttr,&quot;ifindex&quot;,$ifIndex,&quot;ifAdminStatus&quot;,$ifAdminStatus,&quot;ifOperStatus&quot;,$ifOperStatus)</strong></p>
+
+<p dir="ltr">&nbsp;&nbsp; and</p>
+
+<p dir="ltr"><strong>details($*)</strong></p>
+
+<p dir="ltr">&nbsp; becomes<br />
+<strong>@ExtendedAttr = nvp_add($*)</strong></p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr"><span style="font-size:14px;"><em><strong>A Helpful Utility</strong></em></span></p>
+
+<p dir="ltr">The best news is:&nbsp; You can get a utility to do it for you right <a href="https://www.ibm.com/developerworks/mydeveloperworks/blogs/netcoolery/resource/details2nvp.1.3.zip.1.7.zip" target="_blank">here</a>.&nbsp;&nbsp; The following example shows it being used with one of the standard files in the NCKL distribution.&nbsp; The file is converted (the utility saves the original as a &quot;.bak&quot; file) and a &quot;diff&quot; shows the changes:</p>
+
+<p dir="ltr"><strong>$ perl details2nvp.pl&nbsp; include-snmptrap/ATMF/ATMF-ATM-SOFT-PVC-MIB.include.snmptrap.rules<br />
+include-snmptrap/ATMF/ATMF-ATM-SOFT-PVC-MIB.include.snmptrap.rules changed - original backed up to include-snmptrap/ATMF/ATMF-ATM-SOFT-PVC-MIB.include.snmptrap.rules.bak</strong></p>
+
+<p dir="ltr"><br />
+<strong>$ diff $_ $_.bak<br />
+66,67c66<br />
+&lt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # details($atmSoftPvcCallFailures,$atmSoftPvcCurrentlyFailingSoftPVccs,$atmSoftPvcCurrentlyFailingSoftPVpcs)<br />
+&lt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @ExtendedAttr = nvp_add(@ExtendedAttr, &quot;atmSoftPvcCallFailures&quot;, $atmSoftPvcCallFailures, &quot;atmSoftPvcCurrentlyFailingSoftPVccs&quot;, $atmSoftPvcCurren<br />
+tlyFailingSoftPVccs, &quot;atmSoftPvcCurrentlyFailingSoftPVpcs&quot;, $atmSoftPvcCurrentlyFailingSoftPVpcs)<br />
+---<br />
+&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; details($atmSoftPvcCallFailures,$atmSoftPvcCurrentlyFailingSoftPVccs,$atmSoftPvcCurrentlyFailingSoftPVpcs)<br />
+88,89c87<br />
+&lt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # details($*)<br />
+&lt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @ExtendedAttr = nvp_add($*)<br />
+---<br />
+&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; details($*)</strong></p>
+
+<p dir="ltr">As the example shows - the original details statements are commented out for reference.</p>
+
+<p dir="ltr"><em><span style="font-size:14px;"><strong>Converting NCKL</strong></span><strong><span style="font-size:14px;"> and other rules files</span></strong></em></p>
+
+<p dir="ltr">You can convert an entire rules file tree at once using the rules_tree.pl utility I presented in my <a href="https://www.ibm.com/developerworks/community/blogs/netcoolery/entry/working_with_probe_rules_files_as_a_set13?lang=en">previous&nbsp;post</a>.&nbsp; For example, you can convert the NCKL snmptrap.rules tree as follows:</p>
+
+<p dir="ltr"><strong>&nbsp; $ perl rules_tree -print0 snmptrap.rules | xargs -0 -l perl details2nvp.pl</strong></p>
+
+<p dir="ltr">I have used this in production at several customer sites and it has relieved ObjectServer overloading.</p>
+
+<p dir="ltr"><span style="font-size:14px;"><em><strong>Drawbacks</strong></em></span></p>
+
+<p dir="ltr">The primary drawback to packing name-value pairs in the <strong>ExtendedAttrs </strong>column is that there is no equivalent to the &quot;Details&quot; tab in the event clients.&nbsp; The column is just a string of name-value pairs separated by semi-colons.&nbsp; Here&#39;s an example:</p>
+
+<p dir="ltr"><a href="https://www.ibm.com/developerworks/community/blogs/netcoolery/resource/BLOGS_UPLOADED_IMAGES/ExtendedAttr.JPG" target="_blank"><img alt="image" src="https://www.ibm.com/developerworks/community/blogs/netcoolery/resource/BLOGS_UPLOADED_IMAGES/ExtendedAttr.JPG" style="  display:block; margin: 1em 1em 0pt 0pt; float: left;" /></a></p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr"><strong>[</strong>Note that it&#39;s possible to search for the values of individual name-value pairs.&nbsp;&nbsp; This event would be one of potentially multiple events returned by:</p>
+
+<p dir="ltr">select <em><strong>whatever</strong></em> from alerts.status where nvp_get(ExtendedAttr,&#39;Link&#39; = &#39;PA0/1/1&#39;;</p>
+
+<p dir="ltr">This is another nice feature - a similar query involving a sub-select with alerts.details is lot more complicated.<strong>]</strong></p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">&nbsp;</p>
+
+<p dir="ltr">Another possible drawback would be the case where the value of a particular element includes a semi-colon.&nbsp; If this is an issue, the value could be pre-processed with <strong>regreplace</strong>, replacing the semicolons with some other character.</p>
+
+<p dir="ltr">&nbsp;</p>

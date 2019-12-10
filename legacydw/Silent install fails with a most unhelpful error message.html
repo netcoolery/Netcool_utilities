@@ -1,0 +1,13 @@
+<p dir="ltr">The customer was doing a silent installation of OMNIbus 7.4, but the installer would exit with this message:</p>
+
+<p dir="ltr"><strong>The installer cannot run on your configuration. It will now quit</strong></p>
+
+<p dir="ltr">Good grief!&nbsp; Could this be any less informative?&nbsp;&nbsp; Fortunately&nbsp; google came to the rescue and served this up (when presented with the entire error message.)</p>
+
+<p dir="ltr"><a href="http://www-01.ibm.com/support/docview.wss?uid=swg21430495">http://www-01.ibm.com/support/docview.wss?uid=swg21430495</a></p>
+
+<p dir="ltr">The tech note in question is for a different installation, but the symptom was the same and indeed it was the same mistake.&nbsp; The customer had</p>
+
+<p dir="ltr">&nbsp;<span style="font-family:courier new,courier,monospace;"> LICENSE_ACCEPTED=trus</span></p>
+
+<p dir="ltr">in the silent install response file.&nbsp;</p>

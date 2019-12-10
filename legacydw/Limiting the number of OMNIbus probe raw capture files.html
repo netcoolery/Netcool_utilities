@@ -1,0 +1,9 @@
+<p dir="ltr">OMNIbus probe raw capture files can be very helpful for debugging probe issues, but they can also use a lot of disk space.&nbsp;&nbsp; The probe property <strong>MaxRawFileSize</strong> will limit the size of raw capture file but this alone will not prevent running out of disk space.&nbsp;&nbsp; Once the raw capture file has exceeded MaxRawFileSize, the probe will rename the raw capture file by appending the ObjectServer name and epoch. &nbsp; There is no automatic deletion of older capture files.</p>
+
+<p dir="ltr">There really should be another probe property that limits the number of saved raw captures.&nbsp; I&#39;ve opened<a href="http://www.ibm.com/developerworks/rfe/execute?use_case=viewRfe&amp;CR_ID=26076" target="_blank"> </a><a href="http://www.ibm.com/developerworks/rfe/execute?use_case=viewRfe&amp;CR_ID=26076" target="_blank">RFE&nbsp;26076 </a>and I encourage people to vote for it.</p>
+
+<p dir="ltr">In the meantime, here is a script that can be run as a process under OMNIbus process automation.&nbsp;&nbsp; It uses the &quot;-keep&quot; option to specify how many raw capture files should be kept for a given probe.&nbsp;&nbsp; The count includes the current raw capture file, so if no older files are to be kept, use &quot;-keep 1&quot;.</p>
+
+<p dir="ltr">One instance of this script will monitor all the raw capture files created in $OMNIHOME/var - i.e. it will cover for multiple probes.&nbsp;&nbsp; The monitored directory is changeable.</p>
+
+<p dir="ltr">You can find the script <a href="https://ibm.box.com/s/yuo9xzf7tmvalva81ikolnrcqwr3z5n6">here</a>.</p>
