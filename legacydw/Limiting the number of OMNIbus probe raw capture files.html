@@ -1,3 +1,46 @@
+<head>
+<style type="text/css">
+.olddw {
+  border: 1px solid green ;
+  font: 14px arial ;
+  background-color: #DBEAB3 ;
+  max-width: 1200px ;
+}
+.warning {
+  border: 1px solid red ;
+  background-color: #FDF5C6 ;
+}
+p {
+  margin: 5 px ;
+}
+hr {
+  border: 2px solid black;
+}
+</style>
+</head>
+<body>
+<div class="olddw">
+<div dir="ltr" style="margin-left: 25px;">
+  <br>
+  <div class="warning" ><div style="margin-left: 28px;">
+    <p>  &nbsp;<img src="iconWarning.gif"> &nbsp; This is re-hosted content that originally appeared in my IBM developerWorks Connections blog.  The content
+        is unchanged except for link cleanups.  No comments were moved.<br>
+        Many of these re-hosted pages are obsolete.
+    </p><p>  I have remarks concerning the usefulness of this page and its re-hosted brethren
+        in the <a href="TOC.html">Table of Contents</a> for this archive.  Some pages have suggested replacement links.
+    </p>
+  </div></div>
+<p><span style="font: 22px arial, sans-serif; color: blue">
+  Roger Powell (IBM)
+  </span></p>
+  <span style="font: bold 20px arial, sans-serif; color: black">
+    Limiting the number of OMNIbus probe raw capture files
+  <br></span>
+
+  <span style="font: 12px arial; color: black">
+    Published: December 14th, 2018
+  </span>
+<!-- End of standard start plate -->
 <p dir="ltr">OMNIbus probe raw capture files can be very helpful for debugging probe issues, but they can also use a lot of disk space.&nbsp;&nbsp; The probe property <strong>MaxRawFileSize</strong> will limit the size of raw capture file but this alone will not prevent running out of disk space.&nbsp;&nbsp; Once the raw capture file has exceeded MaxRawFileSize, the probe will rename the raw capture file by appending the ObjectServer name and epoch. &nbsp; There is no automatic deletion of older capture files.</p>
 
 <p dir="ltr">There really should be another probe property that limits the number of saved raw captures.&nbsp; I&#39;ve opened<a href="http://www.ibm.com/developerworks/rfe/execute?use_case=viewRfe&amp;CR_ID=26076" target="_blank"> </a><a href="http://www.ibm.com/developerworks/rfe/execute?use_case=viewRfe&amp;CR_ID=26076" target="_blank">RFE&nbsp;26076 </a>and I encourage people to vote for it.</p>
@@ -7,3 +50,11 @@
 <p dir="ltr">One instance of this script will monitor all the raw capture files created in $OMNIHOME/var - i.e. it will cover for multiple probes.&nbsp;&nbsp; The monitored directory is changeable.</p>
 
 <p dir="ltr">You can find the script <a href="https://ibm.box.com/s/yuo9xzf7tmvalva81ikolnrcqwr3z5n6">here</a>.</p>
+
+<!-- Beginning of standard end plate -->
+<hr>
+<p>
+</p>
+</div>
+</div>
+</body>

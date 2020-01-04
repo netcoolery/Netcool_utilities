@@ -1,3 +1,46 @@
+<head>
+<style type="text/css">
+.olddw {
+  border: 1px solid green ;
+  font: 14px arial ;
+  background-color: #DBEAB3 ;
+  max-width: 1200px ;
+}
+.warning {
+  border: 1px solid red ;
+  background-color: #FDF5C6 ;
+}
+p {
+  margin: 5 px ;
+}
+hr {
+  border: 2px solid black;
+}
+</style>
+</head>
+<body>
+<div class="olddw">
+<div dir="ltr" style="margin-left: 25px;">
+  <br>
+  <div class="warning" ><div style="margin-left: 28px;">
+    <p>  &nbsp;<img src="iconWarning.gif"> &nbsp; This is re-hosted content that originally appeared in my IBM developerWorks Connections blog.  The content
+        is unchanged except for link cleanups.  No comments were moved.<br>
+        Many of these re-hosted pages are obsolete.
+    </p><p>  I have remarks concerning the usefulness of this page and its re-hosted brethren
+        in the <a href="TOC.html">Table of Contents</a> for this archive.  Some pages have suggested replacement links.
+    </p>
+  </div></div>
+<p><span style="font: 22px arial, sans-serif; color: blue">
+  Roger Powell (IBM)
+  </span></p>
+  <span style="font: bold 20px arial, sans-serif; color: black">
+    Using OpenLDAP to Authenticate the 'impactadmin' user - Part II
+  <br></span>
+
+  <span style="font: 12px arial; color: black">
+    Published: April 16th, 2019
+  </span>
+<!-- End of standard start plate -->
 <p dir="ltr">In the&nbsp;<a href="https://www.ibm.com/developerworks/community/blogs/netcoolery/entry/Using_OpenLDAP_to_Authenticate_the_impactadmin_user_Part_I1?lang=en" rel="noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer" target="_blank">previous&nbsp;post</a> I showed how to set up an OpenLDAP server to be the authentication source for the <strong>impactadmin </strong>user.&nbsp;&nbsp; Reliable authentication of this user is critical for Impact.&nbsp; Not only is <strong>impactadmin </strong>used as a base administrative user, it is also internally to connect components.</p>
 
 <p dir="ltr">Federating two LDAP servers is accomplished by changing directory to $<span style="font-family:'courier new' , 'courier' , monospace">IMPACT_HOME/install/security</span> and running the <span style="font-family:'courier new' , 'courier' , monospace">confAuth4LDAP.sh</span> script twice.&nbsp;&nbsp; This script not only sets up (or adds) to the LDAP Registry configuration, it also sets (or resets) the default administrative user.&nbsp; Since we want the administrative user to be <strong>impactadmin</strong>, we will need to add the OpenLDAP repository <u>after</u> adding the Corporate LDAP server.</p>
@@ -111,3 +154,11 @@
 <p dir="ltr">You will need to stop and restart the GUI Server and Impact Server and then you will be doing all authentication through LDAP, including getting <strong>impactadmin </strong>from the OpenLDAP repository under local control.</p>
 
 <p dir="ltr">&nbsp;</p>
+
+<!-- Beginning of standard end plate -->
+<hr>
+<p>
+</p>
+</div>
+</div>
+</body>
