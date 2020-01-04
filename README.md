@@ -1,11 +1,10 @@
-# Netcool_utilities
-OK - This is presumably the changed README.md on the pages side
+# Netcool Utilities
 
-Open sourced scripts for the benefit of the IBM Netcool products
+Open sourced scripts for the benefit of users of the IBM Netcool products
 
 "Netcool" is a copyrighted trademark of IBM Corporation
 
-This repository holds various utilities I have authored to help me with tasks related to the deployment and maintenance of various Netcool products.   For those whole are unfamiliar with the term, "Netcool" is a brand name for a series of network and system management products, originally sold by Micromuse Ltd and now sold by IBM which wholly acquired Micromuse in 2006.
+This repository holds various utilities I have authored to help me with tasks related to the deployment and maintenance of various Netcool products.   For those who are unfamiliar with the term, "Netcool" is a brand name for a series of network and system management products, originally sold by Micromuse Ltd and now sold by IBM which wholly acquired Micromuse in 2006.
 
 The oldest and most notable Netcool product is Netcool/OMNIbus - an event management product that was the original Micromuse product.   Often the term "Netcool" is used when the speaker is really referring to OMNIbus.
 
